@@ -1,3 +1,8 @@
+Data/
+pointTrack_weights/
+car_SE_val_prediction/
+tracks_car_pointtrack_val/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -31,9 +31,13 @@ np.random.seed(0)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
 
-config_name = sys.argv[1]
+config_name = sys.argv[1]       # e.g. car_test_se_to_save
 args = eval(config_name).get_args()
 max_disparity = args['max_disparity']
+
+print(config_name)
+print(args)
+# exit(0)
 
 if args['display']:
     plt.ion()
@@ -46,6 +50,7 @@ if args['save']:
         os.makedirs(args['save_dir'])
 
 # set device
+# os.environ['CUDA_VISIBLE_DEVICES'] = "0, 1, 2, 3"
 device = torch.device("cuda:0" if args['cuda'] else "cpu")
 
 # dataloader
@@ -115,12 +120,20 @@ with torch.no_grad():
 
         instance_map_np = instance_map.numpy()
         # cv2.imwrite("/home/xubb/1.jpg", instance_map.numpy() * 50)
+        cv2.imwrite(os.path.join(args['save_dir'], base.replace('.pkl', '.png')), instance_map.numpy() * 50)
         save_pickle2(os.path.join(args['save_dir'], base), instance_map_np)
 
     # eval on args['save_dir']
-    p = subprocess.run([pythonPath, "-u", "test_tracking.py", 'car_test_tracking_val'], stdout=subprocess.PIPE, cwd=rootDir)
 
-    pout = p.stdout.decode("utf-8")
+
+
+    # p = subprocess.run([pythonPath, "-u", "test_tracking.py", 'car_test_tracking_val'], stdout=subprocess.PIPE, cwd=rootDir)
+
+    # pout = p.stdout.decode("utf-8")
+
+
+
+
     # class_str = "Evaluate class: Cars"
     # pout = pout[pout.find(class_str):]
     # acc = pout[pout.find('all   '):][6:26].strip().split(' ')

@@ -18,8 +18,8 @@ args = dict(
 
     save=True,
     save_dir='./tracks_car_pointtrack_val/',
-    checkpoint_path='./car_finetune_tracking/checkpoint.pth',
-    # checkpoint_path='./pointTrack_weights/PointTrack.pthCar',
+    # checkpoint_path='./car_finetune_tracking/checkpoint.pth',
+    checkpoint_path='./pointTrack_weights/PointTrack.pthCar',
     run_eval=True,
 
     dataset= {

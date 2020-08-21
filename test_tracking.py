@@ -38,25 +38,43 @@ if args['save']:
         os.makedirs(args['save_dir'])
 
 # set device
+os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 device = torch.device("cuda:0" if args['cuda'] else "cpu")
+
+print(args)
+
+
+def run_eval():
+    if 'run_eval' in args.keys() and args['run_eval']:
+        # run eval
+        save_val_dir = args['save_dir'].split('/')[1]
+        p = subprocess.run([pythonPath, "-u", "eval.py",
+                            os.path.join(rootDir, save_val_dir), kittiRoot + "instances", "val.seqmap"],
+                                    stdout=subprocess.PIPE, cwd=rootDir + "/datasets/mots_tools/mots_eval")
+        print(p.stdout.decode("utf-8"))
+# run_eval()
+# exit()
+
 
 # dataloader
 dataset = get_dataset(
     args['dataset']['name'], args['dataset']['kwargs'])
 dataset_it = torch.utils.data.DataLoader(
-    dataset, batch_size=1, shuffle=False, drop_last=False, num_workers=4, pin_memory=True if args['cuda'] else False)
+    dataset, batch_size=1, shuffle=False, drop_last=False, num_workers=1, pin_memory=True if args['cuda'] else False)
 
 # load model
 model = get_model(args['model']['name'], args['model']['kwargs'])
-model = torch.nn.DataParallel(model).to(device)
+model = torch.nn.DataParallel(model, device_ids=[0])
+# model = model.to(device)
 
 # load snapshot
 if os.path.exists(args['checkpoint_path']):
-    state = torch.load(args['checkpoint_path'])
+    state = torch.load(args['checkpoint_path'], map_location=device)
     model.load_state_dict(state['model_state_dict'], strict=True)
+    model.to(device)
     print('Load dict from %s' % args['checkpoint_path'])
 else:
-    assert(False, 'checkpoint_path {} does not exist!'.format(args['checkpoint_path']))
+    # assert(False, 'checkpoint_path {} does not exist!'.format(args['checkpoint_path']))
     print(args['checkpoint_path'])
 
 model.eval()
@@ -83,9 +101,10 @@ dColors = [(128, 0, 0), (170, 110, 40), (128, 128, 0), (0, 128, 128), (0, 0, 128
 trackHelper = TrackHelper(args['save_dir'], model.module.margin, alive_car=30, car=args['car'] if 'car' in args.keys() else True,
                           mask_iou=True)
 with torch.no_grad():
-
+    print("###########################")
     for sample in tqdm(dataset_it):
         subf, frameCount = sample['name'][0][:-4].split('/')[-2:]
+        # print('subfolder: ', subf)
         frameCount = int(float(frameCount))
 
         # MOTS forward with tracking
@@ -105,10 +124,12 @@ with torch.no_grad():
 
     trackHelper.export_last_video()
 
-if 'run_eval' in args.keys() and args['run_eval']:
-    # run eval
-    save_val_dir = args['save_dir'].split('/')[1]
-    p = subprocess.run([pythonPath, "-u", "eval.py",
-                        os.path.join(rootDir, save_val_dir), kittiRoot + "instances", "val.seqmap"],
-                                   stdout=subprocess.PIPE, cwd=rootDir + "datasets/mots_tools/mots_eval")
-    print(p.stdout.decode("utf-8"))
+# if 'run_eval' in args.keys() and args['run_eval']:
+#     # run eval
+#     save_val_dir = args['save_dir'].split('/')[1]
+#     p = subprocess.run([pythonPath, "-u", "eval.py",
+#                         os.path.join(rootDir, save_val_dir), kittiRoot + "instances", "val.seqmap"],
+#                                    stdout=subprocess.PIPE, cwd=rootDir + "datasets/mots_tools/mots_eval")
+#     print(p.stdout.decode("utf-8"))
+
+run_eval()

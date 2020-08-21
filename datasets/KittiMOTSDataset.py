@@ -94,7 +94,8 @@ class MOTSCarsVal(Dataset):
         self.transform = transform
 
         self.mots_instance_root = os.path.join(kittiRoot, 'instances')
-        self.mots_image_root = os.path.join(kittiRoot, 'images')
+        # self.mots_image_root = os.path.join(kittiRoot, 'images')
+        self.mots_image_root = os.path.join(kittiRoot, 'training/image_02')
 
         self.mots_car_pairs = []
         for subdir in self.sequence:
@@ -194,13 +195,14 @@ class MOTSTrackCarsValOffset(Dataset):
         if not test:
             ids = self.SEQ_IDS_VAL
             timestamps = self.TIMESTEPS_PER_SEQ
-            self.image_root = os.path.join(kittiRoot, 'images')
-            self.mots_root = os.path.join(systemRoot, 'SpatialEmbeddings/car_SE_val_prediction')
+            # self.image_root = os.path.join(kittiRoot, 'images')
+            self.image_root = os.path.join(kittiRoot, 'training/image_02')
+            self.mots_root = os.path.join(systemRoot, 'car_SE_val_prediction')
         else:
             ids = self.SEQ_IDS_TEST
             timestamps = self.TIMESTEPS_PER_SEQ_TEST
             self.image_root = os.path.join(kittiRoot, 'testing/image_02/')
-            self.mots_root = os.path.join(systemRoot, 'SpatialEmbeddings/car_SE_test_prediction')
+            self.mots_root = os.path.join(systemRoot, 'car_SE_test_prediction')
 
         print('use ', self.mots_root)
         self.batch_num = 2
@@ -349,7 +351,7 @@ class MOTSTrackCarsTrain(Dataset):
         db_dir = kittiRoot + 'ImgTrackEnvDB/'
         self.dbDict = {}
         for id in self.squence:
-            image_root = kittiRoot + "images/" + id
+            image_root = kittiRoot + "training/image_02/" + id
             image_list = make_dataset(image_root, suffix='.png')
             image_list.sort()
             infos = {}
