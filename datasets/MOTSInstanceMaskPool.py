@@ -2,6 +2,9 @@
 Author: Zhenbo Xu
 Licensed under the CC BY-NC 4.0 license (https://creativecommons.org/licenses/by-nc/4.0/)
 """
+import sys 
+sys.path.append("..") 
+
 import os
 import cv2
 import numpy as np
@@ -81,7 +84,7 @@ def maskPool(info):
 
 def getPairs(id):
     label_root = kittiRoot + "instances/" + id
-    image_root = label_root.replace('instances', 'images')
+    image_root = label_root.replace('instances', 'training/image_02')
 
     image_list = make_dataset(image_root, suffix='.png')
     image_list.sort()

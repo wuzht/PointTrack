@@ -49,6 +49,7 @@ model = get_model(args['model']['name'], args['model']['kwargs'])
 model.init_output(args['loss_opts']['n_sigma'])
 
 # set device
+os.environ['CUDA_VISIBLE_DEVICES'] = "4, 5, 6, 7"
 device = torch.device("cuda:0" if args['cuda'] else "cpu")
 model = torch.nn.DataParallel(model).to(device)
 
@@ -157,8 +158,8 @@ def val(epoch):
     val_args = eval(val_name).get_args()
     save_val_dir = val_args['save_dir'].split('/')[1]
     p = subprocess.run([pythonPath, "-u", "eval.py",
-                        os.path.join(rootDir, save_val_dir), kittiRoot + "instances", "val.seqmap"],
-                       stdout=subprocess.PIPE, cwd=rootDir + "datasets/mots_tools/mots_eval")
+                        os.path.join(rootDir, save_val_dir), os.path.join(kittiRoot, "instances"), "val.seqmap"],
+                       stdout=subprocess.PIPE, cwd=os.path.join(rootDir, "datasets/mots_tools/mots_eval"))
     pout = p.stdout.decode("utf-8")
     if 'person' in args['save_dir']:
         class_str = "Evaluate class: Pedestrians"
